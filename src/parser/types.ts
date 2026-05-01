@@ -54,6 +54,11 @@ export interface MNBookData {
   maxTimestamp: number;
 }
 
+export interface DBLike {
+  exec(sql: string): Array<{ columns: string[]; values: Array<Array<unknown>> }>;
+  close(): void;
+}
+
 export interface DBSchema {
   tables: Map<string, string[]>;
   bookTable: string;

@@ -1,8 +1,4 @@
-import type { MNAnnotation, MNMindMapNode, MNBook, MNBookTopic, MNStudySet, MNBookData, DBSchema } from "../parser/types";
-
-interface DBLike {
-  exec(sql: string): Array<{ columns: string[]; values: Array<Array<unknown>> }>;
-}
+import type { MNAnnotation, MNMindMapNode, MNBook, MNBookTopic, MNStudySet, MNBookData, DBSchema, DBLike } from "../parser/types";
 
 const APPLE_EPOCH = 978307200;
 

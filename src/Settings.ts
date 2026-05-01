@@ -1,4 +1,4 @@
-import { PluginSettingTab, Setting, App, Notice, setIcon } from "obsidian";
+import { PluginSettingTab, Setting, App, Notice } from "obsidian";
 import type MarginNoteSyncPlugin from "../main";
 
 export interface StudySetItem {

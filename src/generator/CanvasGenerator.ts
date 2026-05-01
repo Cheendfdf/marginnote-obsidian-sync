@@ -25,21 +25,10 @@ interface CanvasEdge {
 const NODE_WIDTH = 320;
 const H_GAP = 60;
 const V_GAP = 80;
-const GRID_COLS = 3;
 const CANVAS_COLORS = ["1", "2", "3", "4", "5", "6"];
 
 export class CanvasGenerator {
   generate(roots: MNMindMapNode[]): { nodes: CanvasNode[]; edges: CanvasEdge[] } {
-    // Build node ID set
-    const nodeIds = new Set<string>();
-    const collectIds = (nodes: MNMindMapNode[]) => {
-      for (const n of nodes) {
-        nodeIds.add(n.noteId || n.id);
-        collectIds(n.children);
-      }
-    };
-    collectIds(roots);
-
     // Separate: trees (nodes with children) vs standalone leaves
     const trees: MNMindMapNode[] = [];
     const standalones: MNMindMapNode[] = [];
@@ -68,13 +57,10 @@ export class CanvasGenerator {
       const treeCols = Math.max(1, Math.ceil(Math.sqrt(totalTreeWidth / Math.max(avgTreeHeight, 200))));
 
       // Layout all trees at depth 0, then offset their Y positions
-      let currentX = 0;
-      let currentY = 0;
-      let rowMaxY = 0;
       const treeResults: Array<{ result: ReturnType<typeof this.layoutTree>; width: number }> = [];
 
       for (let i = 0; i < trees.length; i++) {
-        const result = this.layoutTree(trees[i], 0, 0, nodeIds);
+        const result = this.layoutTree(trees[i], 0, 0);
         treeResults.push({ result, width: treeWidths[i] });
       }
 
@@ -131,8 +117,7 @@ export class CanvasGenerator {
   private layoutTree(
     node: MNMindMapNode,
     xOffset: number,
-    depth: number,
-    nodeIds: Set<string>
+    depth: number
   ): { nodes: CanvasNode[]; edges: CanvasEdge[]; maxY: number } {
     const nodes: CanvasNode[] = [];
     const edges: CanvasEdge[] = [];
@@ -149,7 +134,7 @@ export class CanvasGenerator {
 
     for (const child of node.children) {
       const childWidth = this.calcSubtreeWidth(child);
-      const result = this.layoutTree(child, childX, depth + 1, nodeIds);
+      const result = this.layoutTree(child, childX, depth + 1);
       nodes.push(...result.nodes);
       edges.push(...result.edges);
       childCenters.push({

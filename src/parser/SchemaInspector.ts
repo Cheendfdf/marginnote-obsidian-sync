@@ -1,8 +1,4 @@
-import type { DBSchema } from "./types";
-
-interface DBLike {
-  exec(sql: string): Array<{ columns: string[]; values: Array<Array<unknown>> }>;
-}
+import type { DBSchema, DBLike } from "./types";
 
 export class SchemaInspector {
   inspect(db: DBLike): DBSchema {

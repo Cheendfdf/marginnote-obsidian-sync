@@ -1,12 +1,7 @@
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import * as fs from "fs";
-import type { DBSchema } from "./types";
+import type { DBLike, DBSchema } from "./types";
 import { SchemaInspector } from "./SchemaInspector";
-
-interface DBLike {
-  exec(sql: string): Array<{ columns: string[]; values: Array<Array<unknown>> }>;
-  close(): void;
-}
 
 class Sqlite3CLI implements DBLike {
   private dbPath: string;
@@ -17,8 +12,9 @@ class Sqlite3CLI implements DBLike {
 
   exec(sql: string): Array<{ columns: string[]; values: Array<Array<unknown>> }> {
     try {
-      const output = execSync(
-        `sqlite3 -json "${this.dbPath}" "${sql.replace(/"/g, '\\"')}"`,
+      const output = execFileSync(
+        "sqlite3",
+        ["-json", this.dbPath, sql],
         { encoding: "utf-8", maxBuffer: 50 * 1024 * 1024, timeout: 30000 }
       ).trim();
 
@@ -33,7 +29,6 @@ class Sqlite3CLI implements DBLike {
       return [{ columns, values }];
     } catch (e) {
       if (e instanceof SyntaxError) {
-        // JSON parse failed — likely empty result from non-SELECT or no rows
         return [];
       }
       throw e;

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "minAppVersion": "1.5.0",
   "description": "Sync annotations, notes, and mind maps from MarginNote 4 to Obsidian",
-  "author": "Your Name",
-  "authorUrl": "",
+  "author": "Cheendf",
+  "authorUrl": "https://github.com/Cheendf",
   "isDesktopOnly": true
 }

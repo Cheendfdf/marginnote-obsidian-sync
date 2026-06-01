@@ -68,44 +68,47 @@ export default class MarginNoteSyncPlugin extends Plugin {
 
   async discoverStudySets(): Promise<StudySetItem[]> {
     const parser = new MNBackupParser();
-    const { db, schema } = parser.loadDatabase(this.settings.dbPath);
-    const extractor = new NoteExtractor(db, schema);
-    const { bookData, studySets } = extractor.extractAll();
+    try {
+      const { db, schema } = parser.loadDatabase(this.settings.dbPath);
+      const extractor = new NoteExtractor(db, schema);
+      const { bookData, studySets } = extractor.extractAll();
 
-    const bookLookup = new Map<string, string>();
-    for (const bd of bookData) {
-      bookLookup.set(bd.book.md5, bd.book.title);
+      const bookLookup = new Map<string, string>();
+      for (const bd of bookData) {
+        bookLookup.set(bd.book.md5, bd.book.title);
+      }
+
+      const items: StudySetItem[] = studySets.map((ss) => {
+        const bookNames: string[] = [];
+        // Find book names from short MD5 in host
+        for (const longMd5 of ss.bookMd5s) {
+          for (const [shortMd5, name] of bookLookup) {
+            if (longMd5.startsWith(shortMd5)) {
+              if (!bookNames.includes(name)) bookNames.push(name);
+              break;
+            }
+          }
+        }
+        // Also check host book
+        if (ss._hostBookMd5) {
+          for (const [shortMd5, name] of bookLookup) {
+            if (ss._hostBookMd5.startsWith(shortMd5)) {
+              if (!bookNames.includes(name)) bookNames.push(name);
+              break;
+            }
+          }
+        }
+        return {
+          topicId: ss.topicId,
+          title: ss.title,
+          bookCount: bookNames.length || ss.bookMd5s.length || 1,
+          bookNames: bookNames.length > 0 ? bookNames : ["(host book)"],
+        };
+      });
+
+      return items;
+    } finally {
+      parser.close();
     }
-
-    const items: StudySetItem[] = studySets.map((ss) => {
-      const bookNames: string[] = [];
-      // Find book names from short MD5 in host
-      for (const longMd5 of ss.bookMd5s) {
-        for (const [shortMd5, name] of bookLookup) {
-          if (longMd5.startsWith(shortMd5)) {
-            if (!bookNames.includes(name)) bookNames.push(name);
-            break;
-          }
-        }
-      }
-      // Also check host book
-      if (ss._hostBookMd5) {
-        for (const [shortMd5, name] of bookLookup) {
-          if (ss._hostBookMd5.startsWith(shortMd5)) {
-            if (!bookNames.includes(name)) bookNames.push(name);
-            break;
-          }
-        }
-      }
-      return {
-        topicId: ss.topicId,
-        title: ss.title,
-        bookCount: bookNames.length || ss.bookMd5s.length || 1,
-        bookNames: bookNames.length > 0 ? bookNames : ["(host book)"],
-      };
-    });
-
-    parser.close();
-    return items;
   }
 }

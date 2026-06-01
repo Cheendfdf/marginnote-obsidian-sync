@@ -15,11 +15,12 @@ export class SyncEngine {
   private canvasGenerator: CanvasGenerator;
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private isSyncing = false;
-  private statusBarEl: HTMLElement | null = null;
+  private statusBarEl: HTMLElement;
 
-  constructor(app: App, settings: MarginNoteSettings) {
+  constructor(app: App, settings: MarginNoteSettings, statusBarEl: HTMLElement) {
     this.app = app;
     this.settings = settings;
+    this.statusBarEl = statusBarEl;
     this.parser = new MNBackupParser();
     this.mdGenerator = new MarkdownGenerator();
     this.canvasGenerator = new CanvasGenerator();
@@ -168,21 +169,14 @@ export class SyncEngine {
   }
 
   private updateStatusBar(state: "syncing" | "success" | "error", text: string) {
-    if (!this.statusBarEl) {
-      this.statusBarEl = this.app.workspace.containerEl.createEl("span", {
-        cls: "marginnote-sync-status",
-      });
-    }
     this.statusBarEl.removeClass("syncing", "success", "error");
     this.statusBarEl.addClass(state);
     this.statusBarEl.setText(text);
 
     if (state === "success" || state === "error") {
       setTimeout(() => {
-        if (this.statusBarEl) {
-          this.statusBarEl.setText("");
-          this.statusBarEl.removeClass("syncing", "success", "error");
-        }
+        this.statusBarEl.setText("");
+        this.statusBarEl.removeClass("syncing", "success", "error");
       }, 5000);
     }
   }

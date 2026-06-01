@@ -14,7 +14,9 @@ export default class MarginNoteSyncPlugin extends Plugin {
     addIcon("marginnote-sync", SYNC_ICON);
     await this.loadSettings();
 
-    this.syncEngine = new SyncEngine(this.app, this.settings);
+    const statusBarEl = this.addStatusBarItem();
+    statusBarEl.addClass("marginnote-sync-status");
+    this.syncEngine = new SyncEngine(this.app, this.settings, statusBarEl);
 
     this.addRibbonIcon("marginnote-sync", "Sync MarginNote notes", async () => {
       await this.runSync();

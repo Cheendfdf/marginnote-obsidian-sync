@@ -161,6 +161,7 @@ export class MarginNoteSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.autoSync = value;
             await this.plugin.saveSettings();
+            this.display();
           })
       );
 

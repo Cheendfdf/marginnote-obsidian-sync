@@ -26,11 +26,10 @@ export class SyncEngine {
   }
 
   updateSettings(settings: MarginNoteSettings) {
-    const wasAutoSync = this.settings.autoSync;
     this.settings = settings;
-    if (settings.autoSync && !wasAutoSync) {
+    if (settings.autoSync) {
       this.startInterval();
-    } else if (!settings.autoSync && wasAutoSync) {
+    } else {
       this.stopInterval();
     }
   }
@@ -39,9 +38,18 @@ export class SyncEngine {
     this.stopInterval();
     if (this.settings.autoSync) {
       const minutes = Math.max(1, this.settings.syncIntervalMinutes || 10);
-      this.intervalId = setInterval(() => {
-        this.sync().catch(() => {});
-      }, minutes * 60 * 1000);
+      const tick = async () => {
+        try {
+          await this.sync();
+        } catch (e) {
+          this.updateStatusBar("error", "Auto-sync failed");
+          new Notice(`MarginNote Sync: auto-sync failed - ${e.message}`);
+        }
+        if (this.intervalId !== null) {
+          this.intervalId = setTimeout(tick, minutes * 60 * 1000) as unknown as ReturnType<typeof setInterval>;
+        }
+      };
+      this.intervalId = setTimeout(tick, minutes * 60 * 1000) as unknown as ReturnType<typeof setInterval>;
     }
   }
 

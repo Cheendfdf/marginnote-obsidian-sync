@@ -83,7 +83,10 @@ export class NoteExtractor {
         }
       }
       // Remove "root" topics (those that look like book-name entries)
-      const filteredTopics = bookTopics.filter((t) => !t.title.match(/^\d{2}_/));
+      const filteredTopics = bookTopics.filter((t) => {
+        if (!t.title.match(/^\d{2}_/)) return true;
+        return annotations.some((a) => a.topicId === t.topicId);
+      });
       // Sort: shorter title first, then alphabetical
       filteredTopics.sort((a, b) => a.title.length - b.title.length || a.title.localeCompare(b.title));
 
@@ -148,8 +151,15 @@ export class NoteExtractor {
     return { bookData: Array.from(bookDataMap.values()), studySets };
   }
 
+  private validateTableName(name: string): string {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+      throw new Error(`Invalid table name: ${name}`);
+    }
+    return name;
+  }
+
   private extractBooks(): MNBook[] {
-    const table = this.schema.bookTable;
+    const table = this.validateTableName(this.schema.bookTable);
     try {
       const result = this.db.exec(
         `SELECT Z_PK, ZAUTHOR, ZFILE, ZMD5 FROM "${table}"`
@@ -174,7 +184,7 @@ export class NoteExtractor {
   }
 
   private extractStudySets(bookTitles: Set<string>): MNStudySet[] {
-    const table = this.schema.topicTable;
+    const table = this.validateTableName(this.schema.topicTable);
     try {
       // Get all ZTOPIC entries with a book link
       const result = this.db.exec(
@@ -236,7 +246,7 @@ export class NoteExtractor {
   }
 
   private extractTopics(): MNBookTopic[] {
-    const table = this.schema.topicTable;
+    const table = this.validateTableName(this.schema.topicTable);
     try {
       const result = this.db.exec(
         `SELECT ZTOPICID, ZTITLE, ZLOCALBOOKMD5 FROM "${table}" WHERE ZTITLE IS NOT NULL AND ZTITLE != ''`
@@ -253,7 +263,7 @@ export class NoteExtractor {
   }
 
   private extractAllAnnotations(): MNAnnotation[] {
-    const table = this.schema.noteTable;
+    const table = this.validateTableName(this.schema.noteTable);
     try {
       const result = this.db.exec(
         `SELECT Z_PK, ZTYPE, ZBOOKMD5, ZHIGHLIGHT_TEXT, ZNOTETITLE, ZNOTES_TEXT,
@@ -305,7 +315,8 @@ export class NoteExtractor {
       case 5:
         return "other";
       default:
-        return "mindmap";
+        console.warn(`MarginNote Sync: unknown annotation type ${rawType}, classifying as "other"`);
+        return "other";
     }
   }
 
@@ -314,8 +325,9 @@ export class NoteExtractor {
 
     // First pass: create MNMindMapNode for each annotation
     for (const n of nodes) {
-      if (n.noteId) {
-        nodeMap.set(n.noteId, { ...n, children: [], depth: 0 });
+      const nodeId = n.noteId || String(n.id);
+      if (nodeId) {
+        nodeMap.set(nodeId, { ...n, children: [], depth: 0 });
       }
     }
 

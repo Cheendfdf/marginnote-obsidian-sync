@@ -1,6 +1,6 @@
 # MarginNote Sync
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/Cheendf/marginnote-obsidian-sync)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/Cheendfdf/marginnote-obsidian-sync)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 将 MarginNote 4 的批注、笔记和思维导图同步到 Obsidian 的插件。
@@ -245,7 +245,7 @@ brew install sqlite3
 ## 开发指南
 
 ```bash
-git clone https://github.com/Cheendf/marginnote-obsidian-sync.git
+git clone https://github.com/Cheendfdf/marginnote-obsidian-sync.git
 cd marginnote-obsidian-sync
 npm install
 ```
@@ -481,7 +481,7 @@ Only annotations typed as mindmap node, chapter, or concept appear in the mind m
 ## Development
 
 ```bash
-git clone https://github.com/Cheendf/marginnote-obsidian-sync.git
+git clone https://github.com/Cheendfdf/marginnote-obsidian-sync.git
 cd marginnote-obsidian-sync
 npm install
 ```
@@ -511,4 +511,4 @@ If this plugin helps you, consider buying me a coffee ☕
 
 ## License
 
-MIT © [Cheendf](https://github.com/Cheendf)
+MIT © [Cheendf](https://github.com/Cheendfdf)

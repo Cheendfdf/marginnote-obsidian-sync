@@ -133,7 +133,7 @@ export class MarkdownGenerator {
     lines.push("");
 
     if (ann.noteId) {
-      lines.push(`[Open in MarginNote](marginnote4app://note/${ann.noteId})`);
+      lines.push(`[Open in MarginNote](marginnote4app://note/${encodeURIComponent(ann.noteId)})`);
       lines.push("");
     }
   }

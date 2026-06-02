@@ -511,4 +511,4 @@ If this plugin helps you, consider buying me a coffee ☕
 
 ## License
 
-MIT © [Cheendf](https://github.com/Cheendfdf)
+MIT © [Cheendfdf](https://github.com/Cheendfdf)
